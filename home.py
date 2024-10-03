@@ -5,8 +5,7 @@ import copy
 import time
 import streamlit as st
 import pandas as pd
-import plotly.express as px
-import plotly.graph_objs as go
+
 
 def get_file_list(suffix,path):
     '''
@@ -51,7 +50,6 @@ if file:
     df = load_data(file)
     col_list = df.columns
     col_list = col_list.to_list()  # 将DF数据转为列表
-    col_list_bak = copy.deepcopy(col_list)  # 备份
     column0_list = df[col_list[0]]
     column1_list = df[col_list[1]]
     print(column0_list)
@@ -59,33 +57,14 @@ if file:
 
 
     if char_type=='柱状图':
-        if len(col_list_bak) > 1:
-            sub_df = df[col_list_bak]
-            sub_df = sub_df.drop(df.columns[[0]], axis=1)
-            col_list_bak.pop(0)
-            print(col_list)
-            print(col_list_bak)
-
-            fig = px.bar(sub_df,x=df['time'],y=col_list_bak,width=1080,height=550)
-            fig.update_layout(legend=dict(orientation="h", ))  # 开启水平显示
-            st.plotly_chart(fig, theme='streamlit')
+        if len(col_list) > 1:
+            chart_data = pd.DataFrame({"月份":column0_list,"交付总成本（元）":column1_list})
+            st.bar_chart(chart_data,x="月份",y="交付总成本（元）")
 
 
 
-            #采用go.方式绘制
-            trace1 = go.Bar(x=column0_list, y = column1_list,name='需验收总额（元）')
-            fig = go.Figure(data=[trace1],layout={"template":"plotly_dark"})
-            st.plotly_chart(fig,theme='streamlit')
 
-    if char_type=='多线图':
-        # 渲染数据
-        if len(col_list_bak) > 1:
-            sub_df = df[col_list_bak]
-            sub_df = sub_df.drop(df.columns[[0]], axis=1)
-            col_list_bak.pop(0)
-            fig = px.line(sub_df, x=df['time'], y="交付总成本", width=1080, height=550)
-            fig.update_layout(legend=dict(orientation="h", ))  # 开启水平显示
-            st.plotly_chart(fig, theme='streamlit')
+
 
 else:
     st.title('请上传文件！')
